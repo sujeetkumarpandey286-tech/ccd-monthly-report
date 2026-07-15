@@ -37,22 +37,22 @@ const PRODUCT_OPTIONS = [
 
 // OLD CCD Gas Quality parameters (from product_quality table)
 const OLD_CCD_GAS_OPTIONS = [
-  { id: 'co_gas_cv', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³' },
-  { id: 'co_gas_naphthalene', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³' },
-  { id: 'co_gas_h2s', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³' },
-  { id: 'co_gas_ammonia', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³' },
-  { id: 'co_gas_tar_fog', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³' },
-  { id: 'bfg_cv', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³' },
+  { id: 'co_gas_cv', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³', domain: [3800, 4600] },
+  { id: 'co_gas_naphthalene', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³', domain: [0, 2] },
+  { id: 'co_gas_h2s', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³', domain: [0, 4] },
+  { id: 'co_gas_ammonia', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³', domain: [0, 0.5] },
+  { id: 'co_gas_tar_fog', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³', domain: [0, 0.5] },
+  { id: 'bfg_cv', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³', domain: [600, 1100] },
 ]
 
 // NEW CCD Gas Quality parameters (from product_quality_new table)
 const NEW_CCD_GAS_OPTIONS = [
-  { id: 'co_gas_cv_new', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³' },
-  { id: 'co_gas_naphthalene_new', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³' },
-  { id: 'co_gas_h2s_new', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³' },
-  { id: 'co_gas_ammonia_new', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³' },
-  { id: 'co_gas_tar_fog_new', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³' },
-  { id: 'bfg_cv_new', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³' },
+  { id: 'co_gas_cv_new', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³', domain: [3800, 4600] },
+  { id: 'co_gas_naphthalene_new', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³', domain: [0, 2] },
+  { id: 'co_gas_h2s_new', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³', domain: [0, 4] },
+  { id: 'co_gas_ammonia_new', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³', domain: [0, 0.5] },
+  { id: 'co_gas_tar_fog_new', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³', domain: [0, 0.5] },
+  { id: 'bfg_cv_new', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³', domain: [600, 1100] },
 ]
 
 export default function DashboardPage() {
@@ -381,7 +381,7 @@ export default function DashboardPage() {
               const selGas = OLD_CCD_GAS_OPTIONS.find(g => g.id === selectedOldGas) || OLD_CCD_GAS_OPTIONS[0]
               const chartData = oldCcdData.map(r => ({
                 month: MONTHS[r.month_index - 1],
-                value: r[selGas.field] || 0,
+                value: r[selGas.field] != null ? Number(r[selGas.field]) : null,
               }))
               return (
                 <>
@@ -390,9 +390,9 @@ export default function DashboardPage() {
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                       <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={selGas.domain as [number, number]} />
                       <Tooltip contentStyle={{ fontSize: 12 }} />
-                      <Line type="monotone" dataKey="value" stroke="#e11d48" strokeWidth={2.5} dot={{ r: 3 }} name={selGas.label} />
+                      <Line type="monotone" dataKey="value" stroke="#e11d48" strokeWidth={2.5} dot={{ r: 3 }} name={selGas.label} connectNulls />
                     </LineChart>
                   </ResponsiveContainer>
                 </>
@@ -412,7 +412,7 @@ export default function DashboardPage() {
               const selGas = NEW_CCD_GAS_OPTIONS.find(g => g.id === selectedNewGas) || NEW_CCD_GAS_OPTIONS[0]
               const chartData = newCcdData.map(r => ({
                 month: MONTHS[r.month_index - 1],
-                value: r[selGas.field] || 0,
+                value: r[selGas.field] != null ? Number(r[selGas.field]) : null,
               }))
               return (
                 <>
@@ -421,9 +421,9 @@ export default function DashboardPage() {
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                       <XAxis dataKey="month" tick={{ fontSize: 10 }} />
-                      <YAxis tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} domain={selGas.domain as [number, number]} />
                       <Tooltip contentStyle={{ fontSize: 12 }} />
-                      <Line type="monotone" dataKey="value" stroke="#0d9488" strokeWidth={2.5} dot={{ r: 3 }} name={selGas.label} />
+                      <Line type="monotone" dataKey="value" stroke="#0d9488" strokeWidth={2.5} dot={{ r: 3 }} name={selGas.label} connectNulls />
                     </LineChart>
                   </ResponsiveContainer>
                 </>
