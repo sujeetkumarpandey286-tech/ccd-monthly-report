@@ -23,7 +23,10 @@ export default function Navbar({ profile, activeTab }: NavbarProps) {
   const tabs = [
     { id: 'entry', label: 'Data Entry', href: '/entry' },
     { id: 'dashboard', label: 'Dashboard', href: '/dashboard' },
-    ...(profile?.role === 'admin' ? [{ id: 'admin', label: 'Admin', href: '/admin' }] : []),
+    ...(profile?.role === 'admin' ? [
+      { id: 'import', label: 'Import/Export', href: '/import' },
+      { id: 'admin', label: 'Admin', href: '/admin' },
+    ] : []),
   ]
 
   const roleColors: Record<string, string> = {
