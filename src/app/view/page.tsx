@@ -10,246 +10,253 @@ const supabase = createClient(
 
 const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
 
-const SECTIONS: { id: string; label: string; table: string; fields: { key: string; label: string }[] }[] = [
+const SECTIONS: { id: string; label: string; table: string; fields: { key: string; label: string; unit: string }[] }[] = [
   {
     id: 'production', label: 'Production', table: 'production',
     fields: [
-      { key: 'crude_tar_app', label: 'Crude Tar (APP)' },
-      { key: 'crude_tar_act', label: 'Crude Tar (ACT)' },
-      { key: 'ehp_app', label: 'EHP (APP)' },
-      { key: 'ehp_act', label: 'EHP (ACT)' },
-      { key: 'sulphuric_acid_app', label: 'Sulphuric Acid (APP)' },
-      { key: 'sulphuric_acid_act', label: 'Sulphuric Acid (ACT)' },
-      { key: 'amm_sulphate_app', label: 'Amm. Sulphate (APP)' },
-      { key: 'amm_sulphate_act', label: 'Amm. Sulphate (ACT)' },
-      { key: 'light_oil_act', label: 'Light Oil (ACT)' },
-      { key: 'carbolic_oil_act', label: 'Carbolic Oil (ACT)' },
-      { key: 'lco_ii_act', label: 'LCO-II (ACT)' },
-      { key: 'anthracene_oil_act', label: 'Anthracene Oil (ACT)' },
-      { key: 'naphthalene_oil_act', label: 'Naphthalene Oil (ACT)' },
-      { key: 'coal_tar_oil_total_act', label: 'Coal Tar Oil Total (ACT)' },
-      { key: 'crude_benzol_app', label: 'Crude Benzol (APP)' },
-      { key: 'crude_benzol_act', label: 'Crude Benzol (ACT)' },
-      { key: 'ammonia_liquor_act', label: 'Ammonia Liquor (ACT)' },
-      { key: 'rt_iv_app', label: 'RT-IV (APP)' },
-      { key: 'rt_iv_act', label: 'RT-IV (ACT)' },
-      { key: 'dehy_tar_act', label: 'Dehy. Tar (ACT)' },
+      { key: 'crude_tar_app', label: 'Crude Tar (APP)', unit: 'T' },
+      { key: 'crude_tar_act', label: 'Crude Tar (ACT)', unit: 'T' },
+      { key: 'ehp_app', label: 'EHP (APP)', unit: 'T' },
+      { key: 'ehp_act', label: 'EHP (ACT)', unit: 'T' },
+      { key: 'sulphuric_acid_app', label: 'Sulphuric Acid (APP)', unit: 'T' },
+      { key: 'sulphuric_acid_act', label: 'Sulphuric Acid (ACT)', unit: 'T' },
+      { key: 'amm_sulphate_app', label: 'Amm. Sulphate (APP)', unit: 'T' },
+      { key: 'amm_sulphate_act', label: 'Amm. Sulphate (ACT)', unit: 'T' },
+      { key: 'light_oil_act', label: 'Light Oil (ACT)', unit: 'T' },
+      { key: 'carbolic_oil_act', label: 'Carbolic Oil (ACT)', unit: 'T' },
+      { key: 'lco_ii_act', label: 'LCO-II (ACT)', unit: 'T' },
+      { key: 'anthracene_oil_act', label: 'Anthracene Oil (ACT)', unit: 'T' },
+      { key: 'naphthalene_oil_act', label: 'Naphthalene Oil (ACT)', unit: 'T' },
+      { key: 'coal_tar_oil_total_act', label: 'Coal Tar Oil Total (ACT)', unit: 'T' },
+      { key: 'crude_benzol_app', label: 'Crude Benzol (APP)', unit: 'T' },
+      { key: 'crude_benzol_act', label: 'Crude Benzol (ACT)', unit: 'T' },
+      { key: 'ammonia_liquor_act', label: 'Ammonia Liquor (ACT)', unit: 'T' },
+      { key: 'rt_iv_app', label: 'RT-IV (APP)', unit: 'T' },
+      { key: 'rt_iv_act', label: 'RT-IV (ACT)', unit: 'T' },
+      { key: 'dehy_tar_act', label: 'Dehy. Tar (ACT)', unit: 'T' },
     ]
   },
   {
     id: 'receipt', label: 'Receipt', table: 'receipt',
     fields: [
-      { key: 'o_phosphoric_acid_kg', label: 'O-Phosphoric Acid (Kg)' },
-      { key: 'caustic_lye', label: 'Caustic Lye' },
-      { key: 'sulphuric_acid', label: 'Sulphuric Acid' },
-      { key: 'sulphur', label: 'Sulphur' },
+      { key: 'o_phosphoric_acid_kg', label: 'O-Phosphoric Acid', unit: 'Kg' },
+      { key: 'caustic_lye', label: 'Caustic Lye', unit: 'T' },
+      { key: 'sulphuric_acid', label: 'Sulphuric Acid', unit: 'T' },
+      { key: 'sulphur', label: 'Sulphur', unit: 'T' },
     ]
   },
   {
     id: 'consumption', label: 'Consumption / Transfer', table: 'consumption',
     fields: [
-      { key: 'crude_tar_distilled', label: 'Crude Tar - Distilled' },
-      { key: 'crude_tar_pbcc', label: 'Crude Tar - PBCC' },
-      { key: 'crude_tar_bf', label: 'Crude Tar - BF' },
-      { key: 'crude_tar_dehy_tar', label: 'Crude Tar - Dehy Tar' },
-      { key: 'crude_tar_stabilization', label: 'Crude Tar - Stabilization' },
-      { key: 'crude_tar_handling_loss', label: 'Crude Tar - Handling Loss' },
-      { key: 'crude_tar_total', label: 'Crude Tar - Total' },
-      { key: 'ehp_pbcc', label: 'EHP - PBCC' },
-      { key: 'ehp_bf', label: 'EHP - BF' },
-      { key: 'ehp_ldbp', label: 'EHP - LDBP' },
-      { key: 'ehp_total', label: 'EHP - Total' },
-      { key: 'sulphuric_acid_sulp', label: 'Sulphuric Acid - Sulp.' },
-      { key: 'sulphuric_acid_n_ccd', label: 'Sulphuric Acid - N CCD' },
-      { key: 'sulphuric_acid_bod', label: 'Sulphuric Acid - BOD' },
-      { key: 'sulphuric_acid_crm', label: 'Sulphuric Acid - CRM' },
-      { key: 'sulphuric_acid_cpp1', label: 'Sulphuric Acid - CPP-1' },
-      { key: 'sulphuric_acid_comm_stab', label: 'Sulphuric Acid - Comm. & Stab.' },
-      { key: 'sulphuric_acid_total', label: 'Sulphuric Acid - Total' },
-      { key: 'road_tar_ces', label: 'Road Tar - CES' },
-      { key: 'road_tar_ts', label: 'Road Tar - TS' },
-      { key: 'road_tar_total', label: 'Road Tar - Total' },
-      { key: 'o_phosphoric_acid', label: 'O-Phosphoric Acid' },
-      { key: 'caustic_lye', label: 'Caustic Lye' },
-      { key: 'sulphur_consum', label: 'Sulphur - Consumption' },
-      { key: 'sulphur_muck_removal', label: 'Sulphur - Muck Removal' },
-      { key: 'sulphur_handling_loss', label: 'Sulphur - Handling Loss' },
-      { key: 'sulphur_pit_comm', label: 'Sulphur - Pit Comm.' },
-      { key: 'sulphur_pit_stab', label: 'Sulphur - Pit Stab.' },
-      { key: 'sulphur_total', label: 'Sulphur - Total' },
-      { key: 'light_oil_cr_tar', label: 'Light Oil - Cr. Tar' },
-      { key: 'light_oil_handling_loss', label: 'Light Oil - Handling Loss' },
-      { key: 'light_oil_total', label: 'Light Oil - Total' },
-      { key: 'carbolic_oil_cr_tar', label: 'Carbolic Oil - Cr. Tar' },
-      { key: 'carbolic_oil_handling_loss', label: 'Carbolic Oil - Handling Loss' },
-      { key: 'carbolic_oil_total', label: 'Carbolic Oil - Total' },
-      { key: 'naphthalene_oil_cr_tar', label: 'Naphthalene Oil - Cr. Tar' },
-      { key: 'naphthalene_oil_handling_loss', label: 'Naphthalene Oil - Handling Loss' },
-      { key: 'naphthalene_oil_naph_plant', label: 'Naphthalene Oil - Naph. Plant' },
-      { key: 'naphthalene_oil_total', label: 'Naphthalene Oil - Total' },
-      { key: 'wash_oil_tar_plant', label: 'Wash Oil - Tar Plant' },
-      { key: 'wash_oil_handling_loss', label: 'Wash Oil - Handling Loss' },
-      { key: 'wash_oil_naph_plant', label: 'Wash Oil - Naph. Plant' },
-      { key: 'wash_oil_cr_tar', label: 'Wash Oil - Cr. Tar' },
-      { key: 'wash_oil_total', label: 'Wash Oil - Total' },
-      { key: 'anthracene_oil_cr_tar', label: 'Anthracene Oil - Cr. Tar' },
-      { key: 'anthracene_oil_handling_loss', label: 'Anthracene Oil - Handling Loss' },
-      { key: 'anthracene_oil_rt_iv', label: 'Anthracene Oil - RT-IV' },
-      { key: 'anthracene_oil_total', label: 'Anthracene Oil - Total' },
+      { key: 'crude_tar_distilled', label: 'Crude Tar - Distilled', unit: 'T' },
+      { key: 'crude_tar_pbcc', label: 'Crude Tar - PBCC', unit: 'T' },
+      { key: 'crude_tar_bf', label: 'Crude Tar - BF', unit: 'T' },
+      { key: 'crude_tar_dehy_tar', label: 'Crude Tar - Dehy Tar', unit: 'T' },
+      { key: 'crude_tar_stabilization', label: 'Crude Tar - Stabilization', unit: 'T' },
+      { key: 'crude_tar_handling_loss', label: 'Crude Tar - Handling Loss', unit: 'T' },
+      { key: 'crude_tar_total', label: 'Crude Tar - Total', unit: 'T' },
+      { key: 'ehp_pbcc', label: 'EHP - PBCC', unit: 'T' },
+      { key: 'ehp_bf', label: 'EHP - BF', unit: 'T' },
+      { key: 'ehp_ldbp', label: 'EHP - LDBP', unit: 'T' },
+      { key: 'ehp_total', label: 'EHP - Total', unit: 'T' },
+      { key: 'sulphuric_acid_sulp', label: 'Sulphuric Acid - Sulp.', unit: 'T' },
+      { key: 'sulphuric_acid_n_ccd', label: 'Sulphuric Acid - N CCD', unit: 'T' },
+      { key: 'sulphuric_acid_bod', label: 'Sulphuric Acid - BOD', unit: 'T' },
+      { key: 'sulphuric_acid_crm', label: 'Sulphuric Acid - CRM', unit: 'T' },
+      { key: 'sulphuric_acid_cpp1', label: 'Sulphuric Acid - CPP-1', unit: 'T' },
+      { key: 'sulphuric_acid_comm_stab', label: 'Sulphuric Acid - Comm. & Stab.', unit: 'T' },
+      { key: 'sulphuric_acid_total', label: 'Sulphuric Acid - Total', unit: 'T' },
+      { key: 'road_tar_ces', label: 'Road Tar - CES', unit: 'T' },
+      { key: 'road_tar_ts', label: 'Road Tar - TS', unit: 'T' },
+      { key: 'road_tar_total', label: 'Road Tar - Total', unit: 'T' },
+      { key: 'o_phosphoric_acid', label: 'O-Phosphoric Acid', unit: 'Kg' },
+      { key: 'caustic_lye', label: 'Caustic Lye', unit: 'T' },
+      { key: 'sulphur_consum', label: 'Sulphur - Consumption', unit: 'T' },
+      { key: 'sulphur_muck_removal', label: 'Sulphur - Muck Removal', unit: 'T' },
+      { key: 'sulphur_handling_loss', label: 'Sulphur - Handling Loss', unit: 'T' },
+      { key: 'sulphur_pit_comm', label: 'Sulphur - Pit Comm.', unit: 'T' },
+      { key: 'sulphur_pit_stab', label: 'Sulphur - Pit Stab.', unit: 'T' },
+      { key: 'sulphur_total', label: 'Sulphur - Total', unit: 'T' },
+      { key: 'light_oil_cr_tar', label: 'Light Oil - Cr. Tar', unit: 'T' },
+      { key: 'light_oil_handling_loss', label: 'Light Oil - Handling Loss', unit: 'T' },
+      { key: 'light_oil_total', label: 'Light Oil - Total', unit: 'T' },
+      { key: 'carbolic_oil_cr_tar', label: 'Carbolic Oil - Cr. Tar', unit: 'T' },
+      { key: 'carbolic_oil_handling_loss', label: 'Carbolic Oil - Handling Loss', unit: 'T' },
+      { key: 'carbolic_oil_total', label: 'Carbolic Oil - Total', unit: 'T' },
+      { key: 'naphthalene_oil_cr_tar', label: 'Naphthalene Oil - Cr. Tar', unit: 'T' },
+      { key: 'naphthalene_oil_handling_loss', label: 'Naphthalene Oil - Handling Loss', unit: 'T' },
+      { key: 'naphthalene_oil_naph_plant', label: 'Naphthalene Oil - Naph. Plant', unit: 'T' },
+      { key: 'naphthalene_oil_total', label: 'Naphthalene Oil - Total', unit: 'T' },
+      { key: 'wash_oil_tar_plant', label: 'Wash Oil - Tar Plant', unit: 'T' },
+      { key: 'wash_oil_handling_loss', label: 'Wash Oil - Handling Loss', unit: 'T' },
+      { key: 'wash_oil_naph_plant', label: 'Wash Oil - Naph. Plant', unit: 'T' },
+      { key: 'wash_oil_cr_tar', label: 'Wash Oil - Cr. Tar', unit: 'T' },
+      { key: 'wash_oil_total', label: 'Wash Oil - Total', unit: 'T' },
+      { key: 'anthracene_oil_cr_tar', label: 'Anthracene Oil - Cr. Tar', unit: 'T' },
+      { key: 'anthracene_oil_handling_loss', label: 'Anthracene Oil - Handling Loss', unit: 'T' },
+      { key: 'anthracene_oil_rt_iv', label: 'Anthracene Oil - RT-IV', unit: 'T' },
+      { key: 'anthracene_oil_total', label: 'Anthracene Oil - Total', unit: 'T' },
     ]
   },
   {
     id: 'despatch', label: 'Despatch', table: 'despatch',
     fields: [
-      { key: 'crude_tar_app', label: 'Crude Tar (APP)' },
-      { key: 'crude_tar_act', label: 'Crude Tar (ACT)' },
-      { key: 'dehydrated_tar_act', label: 'Dehydrated Tar (ACT)' },
-      { key: 'lco_ii_act', label: 'LCO-II (ACT)' },
-      { key: 'anthracene_oil_act', label: 'Anthracene Oil (ACT)' },
-      { key: 'amm_sulphate_app', label: 'Amm. Sulphate (APP)' },
-      { key: 'amm_sulphate_act', label: 'Amm. Sulphate (ACT)' },
-      { key: 'sulphuric_acid_app', label: 'Sulphuric Acid (APP)' },
-      { key: 'sulphuric_acid_act', label: 'Sulphuric Acid (ACT)' },
+      { key: 'crude_tar_app', label: 'Crude Tar (APP)', unit: 'T' },
+      { key: 'crude_tar_act', label: 'Crude Tar (ACT)', unit: 'T' },
+      { key: 'dehydrated_tar_act', label: 'Dehydrated Tar (ACT)', unit: 'T' },
+      { key: 'lco_ii_act', label: 'LCO-II (ACT)', unit: 'T' },
+      { key: 'anthracene_oil_act', label: 'Anthracene Oil (ACT)', unit: 'T' },
+      { key: 'amm_sulphate_app', label: 'Amm. Sulphate (APP)', unit: 'T' },
+      { key: 'amm_sulphate_act', label: 'Amm. Sulphate (ACT)', unit: 'T' },
+      { key: 'sulphuric_acid_app', label: 'Sulphuric Acid (APP)', unit: 'T' },
+      { key: 'sulphuric_acid_act', label: 'Sulphuric Acid (ACT)', unit: 'T' },
     ]
   },
   {
     id: 'stock', label: 'Stock', table: 'stock',
     fields: [
-      { key: 'crude_tar', label: 'Crude Tar' },
-      { key: 'dehydrated_tar', label: 'Dehydrated Tar' },
-      { key: 'ehp', label: 'EHP' },
-      { key: 'rt_iv', label: 'RT-IV' },
-      { key: 'hpn', label: 'HPN' },
-      { key: 'light_oil', label: 'Light Oil' },
-      { key: 'carbolic_oil', label: 'Carbolic Oil' },
-      { key: 'lco_ii', label: 'LCO-II' },
-      { key: 'anthracene_oil', label: 'Anthracene Oil' },
-      { key: 'sulphuric_acid', label: 'Sulphuric Acid' },
-      { key: 'amm_sulphate', label: 'Amm. Sulphate' },
-      { key: 'crude_benzol', label: 'Crude Benzol' },
-      { key: 'o_phosphoric_acid', label: 'O-Phosphoric Acid' },
-      { key: 'caustic_lye', label: 'Caustic Lye' },
-      { key: 'sulphur', label: 'Sulphur' },
-      { key: 'naphthalene_oil', label: 'Naphthalene Oil' },
+      { key: 'crude_tar', label: 'Crude Tar', unit: 'T' },
+      { key: 'dehydrated_tar', label: 'Dehydrated Tar', unit: 'T' },
+      { key: 'ehp', label: 'EHP', unit: 'T' },
+      { key: 'rt_iv', label: 'RT-IV', unit: 'T' },
+      { key: 'hpn', label: 'HPN', unit: 'T' },
+      { key: 'light_oil', label: 'Light Oil', unit: 'T' },
+      { key: 'carbolic_oil', label: 'Carbolic Oil', unit: 'T' },
+      { key: 'lco_ii', label: 'LCO-II', unit: 'T' },
+      { key: 'anthracene_oil', label: 'Anthracene Oil', unit: 'T' },
+      { key: 'sulphuric_acid', label: 'Sulphuric Acid', unit: 'T' },
+      { key: 'amm_sulphate', label: 'Amm. Sulphate', unit: 'T' },
+      { key: 'crude_benzol', label: 'Crude Benzol', unit: 'T' },
+      { key: 'o_phosphoric_acid', label: 'O-Phosphoric Acid', unit: 'Kg' },
+      { key: 'caustic_lye', label: 'Caustic Lye', unit: 'T' },
+      { key: 'sulphur', label: 'Sulphur', unit: 'T' },
+      { key: 'naphthalene_oil', label: 'Naphthalene Oil', unit: 'T' },
     ]
   },
   {
     id: 'techno_eco', label: 'Techno-Eco. Parameters', table: 'techno_eco',
     fields: [
-      { key: 'oven_pushing_old_month', label: 'Oven Pushing (Old) - Month' },
-      { key: 'oven_pushing_old_day', label: 'Oven Pushing (Old) - Day' },
-      { key: 'oven_pushing_new_month', label: 'Oven Pushing (New) - Month' },
-      { key: 'oven_pushing_new_day', label: 'Oven Pushing (New) - Day' },
-      { key: 'coal_charged_per_oven_old', label: 'Coal Chgd. Per Oven (Old)' },
-      { key: 'coal_charged_per_oven_new', label: 'Coal Chgd. Per Oven (New)' },
-      { key: 'vm_percent_coal_blend_old', label: '%VM in Coal Blend (Old)' },
-      { key: 'vm_percent_coal_blend_new', label: '%VM in Coal Blend (New)' },
-      { key: 'raw_gas_ammonia_g_nm3', label: 'Raw Gas Ammonia [g/Nm3]' },
-      { key: 'acid_per_t_sulphate', label: 'Acid / T Sulphate' },
-      { key: 'sulphur_per_t_acid', label: 'Sulphur / T Acid' },
+      { key: 'oven_pushing_old_month', label: 'Oven Pushing (Old) - Month', unit: 'Nos.' },
+      { key: 'oven_pushing_old_day', label: 'Oven Pushing (Old) - Day', unit: 'Nos.' },
+      { key: 'oven_pushing_new_month', label: 'Oven Pushing (New) - Month', unit: 'Nos.' },
+      { key: 'oven_pushing_new_day', label: 'Oven Pushing (New) - Day', unit: 'Nos.' },
+      { key: 'coal_charged_per_oven_old', label: 'Coal Chgd. Per Oven (Old)', unit: 'T' },
+      { key: 'coal_charged_per_oven_new', label: 'Coal Chgd. Per Oven (New)', unit: 'T' },
+      { key: 'vm_percent_coal_blend_old', label: '%VM in Coal Blend (Old)', unit: '%' },
+      { key: 'vm_percent_coal_blend_new', label: '%VM in Coal Blend (New)', unit: '%' },
+      { key: 'raw_gas_ammonia_g_nm3', label: 'Raw Gas Ammonia', unit: 'g/Nm³' },
+      { key: 'acid_per_t_sulphate', label: 'Acid / T Sulphate', unit: 'T/T' },
+      { key: 'sulphur_per_t_acid', label: 'Sulphur / T Acid', unit: 'T/T' },
     ]
   },
   {
     id: 'product_yield', label: 'Product Yield', table: 'product_yield',
     fields: [
-      { key: 'crude_tar_kg_tdcc_old', label: 'Crude Tar [kg/TDCC] (Old)' },
-      { key: 'crude_tar_kg_tdcc_new', label: 'Crude Tar [kg/TDCC] (New)' },
-      { key: 'ehp_pct_ctd', label: 'EHP [%CTD]' },
-      { key: 'light_oil_pct_ctd', label: 'Light Oil [%CTD]' },
-      { key: 'hpn_pct_nod', label: 'HPN [%NOD]' },
-      { key: 'amm_sulphate_kg_tdcc', label: 'Amm. Sulphate [kg/TDCC]' },
-      { key: 'anthracene_oil_pct_ctd', label: 'Anthracene Oil [%CTD]' },
-      { key: 'lco_ii_pct_ctd', label: 'LCO-II [%CTD]' },
-      { key: 'carbolic_oil_pct_ctd', label: 'Carbolic Oil [%CTD]' },
-      { key: 'naphthalene_oil_pct_ctd', label: 'Naphthalene Oil [%CTD]' },
-      { key: 'total_tar_product_pct_ctd', label: 'Total Tar Product [%CTD]' },
+      { key: 'crude_tar_kg_tdcc_old', label: 'Crude Tar (Old)', unit: 'kg/TDCC' },
+      { key: 'crude_tar_kg_tdcc_new', label: 'Crude Tar (New)', unit: 'kg/TDCC' },
+      { key: 'ehp_pct_ctd', label: 'EHP', unit: '%CTD' },
+      { key: 'light_oil_pct_ctd', label: 'Light Oil', unit: '%CTD' },
+      { key: 'hpn_pct_nod', label: 'HPN', unit: '%NOD' },
+      { key: 'amm_sulphate_kg_tdcc', label: 'Amm. Sulphate', unit: 'kg/TDCC' },
+      { key: 'anthracene_oil_pct_ctd', label: 'Anthracene Oil', unit: '%CTD' },
+      { key: 'lco_ii_pct_ctd', label: 'LCO-II', unit: '%CTD' },
+      { key: 'carbolic_oil_pct_ctd', label: 'Carbolic Oil', unit: '%CTD' },
+      { key: 'naphthalene_oil_pct_ctd', label: 'Naphthalene Oil', unit: '%CTD' },
+      { key: 'total_tar_product_pct_ctd', label: 'Total Tar Product', unit: '%CTD' },
     ]
   },
   {
     id: 'revenue', label: 'Revenue Generation', table: 'revenue',
     fields: [
-      { key: 'nsr_lakh_rs', label: 'NSR [Lakh Rs.]' },
+      { key: 'nsr_lakh_rs', label: 'NSR', unit: 'Lakh Rs.' },
     ]
   },
   {
     id: 'running_hours', label: 'Running Hours', table: 'running_hours',
     fields: [
-      { key: 'exhauster_1', label: 'Exhauster #1' },
-      { key: 'exhauster_2', label: 'Exhauster #2' },
-      { key: 'exhauster_3', label: 'Exhauster #3' },
-      { key: 'exhauster_4', label: 'Exhauster #4' },
-      { key: 'exhauster_5', label: 'Exhauster #5' },
-      { key: 'exhauster_6', label: 'Exhauster #6' },
-      { key: 'booster_1', label: 'Booster #1' },
-      { key: 'booster_2', label: 'Booster #2' },
-      { key: 'booster_3', label: 'Booster #3' },
-      { key: 'booster_4', label: 'Booster #4' },
-      { key: 'booster_5', label: 'Booster #5' },
-      { key: 'tar_distillation', label: 'Tar Distillation' },
-      { key: 'vacuum', label: 'Vacuum' },
-      { key: 'acid_plant', label: 'Acid Plant' },
-      { key: 'ammonium_sulphate', label: 'Ammonium Sulphate' },
+      { key: 'exhauster_1', label: 'Exhauster #1', unit: 'Hrs' },
+      { key: 'exhauster_2', label: 'Exhauster #2', unit: 'Hrs' },
+      { key: 'exhauster_3', label: 'Exhauster #3', unit: 'Hrs' },
+      { key: 'exhauster_4', label: 'Exhauster #4', unit: 'Hrs' },
+      { key: 'exhauster_5', label: 'Exhauster #5', unit: 'Hrs' },
+      { key: 'exhauster_6', label: 'Exhauster #6', unit: 'Hrs' },
+      { key: 'booster_1', label: 'Booster #1', unit: 'Hrs' },
+      { key: 'booster_2', label: 'Booster #2', unit: 'Hrs' },
+      { key: 'booster_3', label: 'Booster #3', unit: 'Hrs' },
+      { key: 'booster_4', label: 'Booster #4', unit: 'Hrs' },
+      { key: 'booster_5', label: 'Booster #5', unit: 'Hrs' },
+      { key: 'tar_distillation', label: 'Tar Distillation', unit: 'Hrs' },
+      { key: 'vacuum', label: 'Vacuum', unit: 'Hrs' },
+      { key: 'acid_plant', label: 'Acid Plant', unit: 'Hrs' },
+      { key: 'ammonium_sulphate', label: 'Ammonium Sulphate', unit: 'Hrs' },
     ]
   },
   {
     id: 'iso_objectives', label: 'ISO Objectives', table: 'iso_objectives',
     fields: [
-      { key: 'end_gas_ammonia_g_nm3', label: 'End Gas Ammonia [G/NM3]' },
-      { key: 'end_gas_naphthalene_g_nm3', label: 'End Gas Naphthalene [G/NM3]' },
-      { key: 'tar_fog_g_nm3', label: 'Tar Fog [G/NM3]' },
+      { key: 'end_gas_ammonia_g_nm3', label: 'End Gas Ammonia', unit: 'g/Nm³' },
+      { key: 'end_gas_naphthalene_g_nm3', label: 'End Gas Naphthalene', unit: 'g/Nm³' },
+      { key: 'tar_fog_g_nm3', label: 'Tar Fog', unit: 'g/Nm³' },
     ]
   },
   {
     id: 'ohsas_objectives', label: 'OHSAS Objectives', table: 'ohsas_objectives',
     fields: [
-      { key: 'reportable_accidents', label: 'Reportable Accidents [Nos.]' },
-      { key: 'health_checkups_total', label: 'Health Check-ups [Nos.]' },
-      { key: 'earthing_pit_inspection_pct', label: 'Earthing Pit Inspection [%]' },
+      { key: 'reportable_accidents', label: 'Reportable Accidents', unit: 'Nos.' },
+      { key: 'health_checkups_total', label: 'Health Check-ups', unit: 'Nos.' },
+      { key: 'earthing_pit_inspection_pct', label: 'Earthing Pit Inspection', unit: '%' },
     ]
   },
   {
     id: 'environment_bod', label: 'Environment BOD Analysis', table: 'environment_bod',
     fields: [
-      { key: 'ammonia_in', label: 'Ammonia: In' },
-      { key: 'ammonia_out', label: 'Ammonia: Out' },
-      { key: 'phenol_in', label: 'Phenol: In' },
-      { key: 'phenol_out', label: 'Phenol: Out' },
-      { key: 'cyanide_in', label: 'Cyanide: In' },
-      { key: 'cyanide_out', label: 'Cyanide: Out' },
-      { key: 'ph_in', label: 'pH: In' },
-      { key: 'ph_out', label: 'pH: Out' },
-      { key: 'phosphate_out', label: 'Phosphate: Out' },
-      { key: 'mlss_at_i', label: 'MLSS: AT-I' },
-      { key: 'mlss_at_ii', label: 'MLSS: AT-II' },
+      { key: 'ammonia_in', label: 'Ammonia: In', unit: 'ppm' },
+      { key: 'ammonia_out', label: 'Ammonia: Out', unit: 'ppm' },
+      { key: 'phenol_in', label: 'Phenol: In', unit: 'ppm' },
+      { key: 'phenol_out', label: 'Phenol: Out', unit: 'ppm' },
+      { key: 'cyanide_in', label: 'Cyanide: In', unit: 'ppm' },
+      { key: 'cyanide_out', label: 'Cyanide: Out', unit: 'ppm' },
+      { key: 'ph_in', label: 'pH: In', unit: '' },
+      { key: 'ph_out', label: 'pH: Out', unit: '' },
+      { key: 'phosphate_out', label: 'Phosphate: Out', unit: 'ppm' },
+      { key: 'mlss_at_i', label: 'MLSS: AT-I', unit: 'ppm' },
+      { key: 'mlss_at_ii', label: 'MLSS: AT-II', unit: 'ppm' },
     ]
   },
   {
     id: 'product_quality', label: 'Product Quality (Old CCD)', table: 'product_quality',
     fields: [
-      { key: 'tar_quality_bi', label: 'Tar Quality: BI' },
-      { key: 'tar_quality_qi', label: 'Tar Quality: QI' },
-      { key: 'tar_sp_gr', label: 'Tar Sp. Gr.' },
-      { key: 'acid_concentration', label: 'Acid Concentration' },
+      { key: 'tar_quality_bi', label: 'Tar Quality: BI', unit: '%' },
+      { key: 'tar_quality_qi', label: 'Tar Quality: QI', unit: '%' },
+      { key: 'tar_sp_gr', label: 'Tar Sp. Gr.', unit: '' },
+      { key: 'acid_concentration', label: 'Acid Concentration', unit: '%' },
     ]
   },
   {
     id: 'lab_analysis_new', label: 'Lab Analysis (New CCD)', table: 'lab_analysis_new',
     fields: [
-      { key: 'tar_fog_g_nm3', label: 'Tar Fog [G/NM3]' },
-      { key: 'naphthalene_g_nm3', label: 'Naphthalene [G/NM3]' },
-      { key: 'ammonia_g_nm3', label: 'Ammonia [G/NM3]' },
+      { key: 'tar_fog_g_nm3', label: 'Tar Fog', unit: 'g/Nm³' },
+      { key: 'naphthalene_g_nm3', label: 'Naphthalene', unit: 'g/Nm³' },
+      { key: 'ammonia_g_nm3', label: 'Ammonia', unit: 'g/Nm³' },
     ]
   },
   {
     id: 'product_quality_new', label: 'Product Quality (New CCD)', table: 'product_quality_new',
     fields: [
-      { key: 'tar_quality_bi', label: 'Tar Quality: BI' },
-      { key: 'tar_quality_qi', label: 'Tar Quality: QI' },
-      { key: 'tar_sp_gr', label: 'Tar Sp. Gr.' },
-      { key: 'acid_concentration', label: 'Acid Concentration' },
+      { key: 'tar_quality_bi', label: 'Tar Quality: BI', unit: '%' },
+      { key: 'tar_quality_qi', label: 'Tar Quality: QI', unit: '%' },
+      { key: 'tar_sp_gr', label: 'Tar Sp. Gr.', unit: '' },
+      { key: 'acid_concentration', label: 'Acid Concentration', unit: '%' },
     ]
   },
 ]
+
+function roundVal(val: any): string {
+  if (val === null || val === undefined) return ''
+  const num = Number(val)
+  if (isNaN(num)) return String(val)
+  return Number(num.toFixed(3)).toString()
+}
 
 export default function ViewDataPage() {
   const [profile, setProfile] = useState<any>(null)
@@ -384,6 +391,7 @@ export default function ViewDataPage() {
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-2 px-3 font-medium text-gray-600">Parameter</th>
+                      <th className="text-center py-2 px-3 font-medium text-gray-600">Unit</th>
                       <th className="text-right py-2 px-3 font-medium text-gray-600">Value</th>
                     </tr>
                   </thead>
@@ -391,8 +399,9 @@ export default function ViewDataPage() {
                     {currentSection?.fields.map(f => (
                       <tr key={f.key} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-2 px-3 text-gray-700">{f.label}</td>
+                        <td className="py-2 px-3 text-center text-gray-500 text-xs">{f.unit}</td>
                         <td className="py-2 px-3 text-right font-mono text-gray-900">
-                          {data[f.key] !== null && data[f.key] !== undefined ? data[f.key] : <span className="text-gray-300">—</span>}
+                          {data[f.key] !== null && data[f.key] !== undefined ? roundVal(data[f.key]) : <span className="text-gray-300">—</span>}
                         </td>
                       </tr>
                     ))}
@@ -414,6 +423,7 @@ export default function ViewDataPage() {
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="text-left py-2 px-2 font-medium text-gray-600 sticky left-0 bg-white">Parameter</th>
+                      <th className="text-center py-2 px-2 font-medium text-gray-600">Unit</th>
                       {MONTHS.map(m => (
                         <th key={m} className="text-center py-2 px-2 font-medium text-gray-600 min-w-[60px]">{m}</th>
                       ))}
@@ -423,12 +433,13 @@ export default function ViewDataPage() {
                     {currentSection?.fields.map(f => (
                       <tr key={f.key} className="border-b border-gray-100 hover:bg-gray-50">
                         <td className="py-2 px-2 text-gray-700 sticky left-0 bg-white text-xs whitespace-nowrap">{f.label}</td>
+                        <td className="py-2 px-2 text-center text-gray-500">{f.unit}</td>
                         {MONTHS.map((_, mi) => {
                           const monthRow = yearlyData.find(r => r.month_index === mi + 1)
                           const val = monthRow?.[f.key]
                           return (
                             <td key={mi} className="py-2 px-2 text-center font-mono text-gray-900">
-                              {val !== null && val !== undefined ? val : <span className="text-gray-300">—</span>}
+                              {val !== null && val !== undefined ? roundVal(val) : <span className="text-gray-300">—</span>}
                             </td>
                           )
                         })}
