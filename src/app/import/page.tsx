@@ -484,6 +484,7 @@ export default function ImportPage() {
 
     setProgress('Building Excel...')
     const monthHeaders = MONTHS.slice(fromM - 1, toM)
+    const numMonths = toM - fromM + 1
     const getVal = (table: string, field: string, month: number) => {
       const row = allData[table]?.find((r: any) => r.month_index === month)
       const val = row?.[field]
@@ -493,13 +494,16 @@ export default function ImportPage() {
     }
 
     const rows: any[][] = []
-    rows.push(['COAL CHEMICALS DEPARTMENT'])
-    rows.push(['MONTHLY REPORT ' + downloadFY])
+    // Title rows
+    rows.push(['', '', '', ...Array(numMonths).fill('')])  // row 1: title
+    rows.push(['', '', '', ...Array(numMonths).fill('')])  // row 2: subtitle
+    rows.push(['', '', '', ...Array(numMonths).fill('')])  // row 3: spacer
+    // Header row
     rows.push(['PARAMETER', 'TYPE', 'UNIT', ...monthHeaders])
 
     for (const r of REPORT_ROWS) {
       if (!r.table) {
-        rows.push([r.label, '', '', ...Array(toM - fromM + 1).fill('')])
+        rows.push([r.label, '', '', ...Array(numMonths).fill('')])
       } else {
         const vals = []
         for (let m = fromM; m <= toM; m++) {
@@ -509,9 +513,34 @@ export default function ImportPage() {
       }
     }
 
+    // Footer
+    rows.push(['', '', '', ...Array(numMonths).fill('')])
+    rows.push(['Developed by: SAIL Digital Transformation Division  |  Rourkela Steel Plant  |  Confidential', '', '', ...Array(numMonths).fill('')])
+
     const ws = XLSX.utils.aoa_to_sheet(rows)
+
+    // Set title cells
+    ws['A1'] = { v: 'COAL CHEMICALS DEPARTMENT — MONTHLY PERFORMANCE REPORT', t: 's' }
+    ws['A2'] = { v: 'SAIL, Rourkela Steel Plant  |  FY ' + downloadFY, t: 's' }
+
+    // Column widths
+    const colWidths = [{ wch: 26 }, { wch: 7 }, { wch: 10 }]
+    for (let i = 0; i < numMonths; i++) colWidths.push({ wch: 11 })
+    ws['!cols'] = colWidths
+
+    // Row heights
+    ws['!rows'] = [{ hpt: 30 }, { hpt: 18 }, { hpt: 6 }, { hpt: 20 }]
+
+    // Merge title rows across all columns
+    const lastCol = XLSX.utils.encode_col(2 + numMonths)
+    ws['!merges'] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: 2 + numMonths } },  // title
+      { s: { r: 1, c: 0 }, e: { r: 1, c: 2 + numMonths } },  // subtitle
+      { s: { r: rows.length - 1, c: 0 }, e: { r: rows.length - 1, c: 2 + numMonths } },  // footer
+    ]
+
     const wb = XLSX.utils.book_new()
-    XLSX.utils.book_append_sheet(wb, ws, 'Monthly Report')
+    XLSX.utils.book_append_sheet(wb, ws, 'CCD Monthly Report')
     const filename = downloadType === 'full'
       ? 'CCD_Report_' + downloadFY + '_Full.xlsx'
       : 'CCD_Report_' + downloadFY + '_' + MONTHS[fromM-1] + '-' + MONTHS[toM-1] + '.xlsx'
@@ -537,6 +566,7 @@ export default function ImportPage() {
     }
 
     const monthHeaders = MONTHS.slice(fromM - 1, toM)
+    const numMonths = toM - fromM + 1
     const getValPdf = (table: string, field: string, month: number) => {
       const row = allData[table]?.find((r: any) => r.month_index === month)
       const val = row?.[field]
@@ -546,17 +576,30 @@ export default function ImportPage() {
     }
 
     const doc = new jsPDF({ orientation: 'landscape' })
+    const pageW = doc.internal.pageSize.getWidth()
+
+    // Title banner
+    doc.setFillColor(27, 58, 92)  // dark blue
+    doc.rect(0, 0, pageW, 22, 'F')
+    doc.setTextColor(255, 255, 255)
     doc.setFontSize(14)
-    doc.text('COAL CHEMICALS DEPARTMENT', 148, 12, { align: 'center' })
-    doc.setFontSize(11)
-    doc.text('MONTHLY REPORT ' + downloadFY, 148, 19, { align: 'center' })
+    doc.setFont('helvetica', 'bold')
+    doc.text('COAL CHEMICALS DEPARTMENT — MONTHLY PERFORMANCE REPORT', pageW / 2, 10, { align: 'center' })
+    doc.setFontSize(9)
+    doc.setFont('helvetica', 'normal')
+    doc.text('SAIL, Rourkela Steel Plant  |  FY ' + downloadFY + '  |  Generated: ' + new Date().toLocaleDateString('en-IN'), pageW / 2, 18, { align: 'center' })
+
+    // Reset text color
+    doc.setTextColor(0, 0, 0)
 
     const headers = [['Parameter', 'Type', 'Unit', ...monthHeaders]]
     const body: any[][] = []
+    let rowIndex = 0
 
     for (const r of REPORT_ROWS) {
       if (!r.table) {
-        body.push([{ content: r.label, colSpan: 3 + (toM - fromM + 1), styles: { fontStyle: 'bold', fillColor: [220, 230, 255] } }])
+        // Section header row
+        body.push([{ content: '  ' + r.label, colSpan: 3 + numMonths, styles: { fontStyle: 'bold', fillColor: [214, 232, 245], textColor: [27, 58, 92], fontSize: 7 } }])
       } else {
         const vals = []
         for (let m = fromM; m <= toM; m++) {
@@ -564,16 +607,35 @@ export default function ImportPage() {
         }
         body.push([r.label, r.subLabel, r.unit, ...vals])
       }
+      rowIndex++
     }
 
     ;(doc as any).autoTable({
       head: headers,
       body: body,
-      startY: 24,
-      styles: { fontSize: 6, cellPadding: 1.5 },
-      headStyles: { fillColor: [59, 130, 246], fontSize: 6 },
+      startY: 26,
+      styles: { fontSize: 6, cellPadding: 1.5, lineColor: [200, 200, 200], lineWidth: 0.1 },
+      headStyles: { fillColor: [46, 91, 138], fontSize: 6.5, textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+      columnStyles: {
+        0: { cellWidth: 38, fontStyle: 'normal' },
+        1: { cellWidth: 10, halign: 'center' },
+        2: { cellWidth: 14, halign: 'center', fontStyle: 'italic', textColor: [100, 100, 100] },
+      },
+      alternateRowStyles: { fillColor: [245, 245, 245] },
       theme: 'grid',
       margin: { left: 5, right: 5 },
+      didDrawPage: (data: any) => {
+        // Footer on each page
+        const pageH = doc.internal.pageSize.getHeight()
+        doc.setFillColor(240, 240, 240)
+        doc.rect(0, pageH - 10, pageW, 10, 'F')
+        doc.setFontSize(7)
+        doc.setTextColor(120, 120, 120)
+        doc.setFont('helvetica', 'italic')
+        doc.text('Developed by: SAIL Digital Transformation Division  |  Rourkela Steel Plant  |  Confidential', pageW / 2, pageH - 4, { align: 'center' })
+        doc.setTextColor(0, 0, 0)
+        doc.setFont('helvetica', 'normal')
+      },
     })
 
     const filename = downloadType === 'full'
