@@ -144,4 +144,178 @@ const sectionFields: Record<string, { key: string; label: string; unit?: string 
   ],
   despatch: [
     { key: 'crude_tar_app', label: 'Crude Tar (APP)', unit: 'MT' },
-    { key: 'crude_tar_act', label: 'Crude Tar (ACT)',
+    { key: 'crude_tar_act', label: 'Crude Tar (ACT)', unit: 'MT' },
+    { key: 'dehydrated_tar_act', label: 'Dehydrated Tar (ACT)', unit: 'MT' },
+    { key: 'lco_ii_act', label: 'LCO-II (ACT)', unit: 'MT' },
+    { key: 'anthracene_oil_act', label: 'Anthracene Oil (ACT)', unit: 'MT' },
+    { key: 'amm_sulphate_app', label: 'Amm. Sulphate (APP)', unit: 'MT' },
+    { key: 'amm_sulphate_act', label: 'Amm. Sulphate (ACT)', unit: 'MT' },
+    { key: 'sulphuric_acid_app', label: 'Sulphuric Acid (APP)', unit: 'MT' },
+    { key: 'sulphuric_acid_act', label: 'Sulphuric Acid (ACT)', unit: 'MT' },
+  ],
+  consumption: [
+    { key: 'crude_tar_distilled', label: 'Crude Tar Distilled', unit: 'MT' },
+    { key: 'crude_tar_total', label: 'Crude Tar Total', unit: 'MT' },
+    { key: 'ehp_total', label: 'EHP Total', unit: 'MT' },
+    { key: 'sulphuric_acid_total', label: 'Sulphuric Acid Total', unit: 'MT' },
+    { key: 'road_tar_total', label: 'Road Tar Total', unit: 'MT' },
+    { key: 'o_phosphoric_acid', label: 'O-Phosphoric Acid', unit: 'MT' },
+    { key: 'caustic_lye', label: 'Caustic Lye', unit: 'MT' },
+    { key: 'sulphur_total', label: 'Sulphur Total', unit: 'MT' },
+    { key: 'light_oil_total', label: 'Light Oil Total', unit: 'MT' },
+    { key: 'carbolic_oil_total', label: 'Carbolic Oil Total', unit: 'MT' },
+    { key: 'naphthalene_oil_total', label: 'Naphthalene Oil Total', unit: 'MT' },
+    { key: 'wash_oil_total', label: 'Wash Oil Total', unit: 'MT' },
+    { key: 'anthracene_oil_total', label: 'Anthracene Oil Total', unit: 'MT' },
+  ],
+}
+
+const editableBySection: Record<string, string[]> = {
+  production: ['production', 'admin'],
+  receipt: ['production', 'admin'],
+  consumption: ['production', 'admin'],
+  despatch: ['production', 'admin'],
+  stock: ['production', 'admin'],
+  running_hours: ['production', 'admin'],
+  techno_eco: ['quality', 'admin'],
+  product_yield: ['quality', 'admin'],
+  product_quality: ['quality', 'admin'],
+  product_quality_new: ['quality', 'admin'],
+  lab_analysis_new: ['quality', 'admin'],
+  revenue: ['admin'],
+  iso_objectives: ['environment', 'admin'],
+  ohsas_objectives: ['safety', 'admin'],
+  environment_bod: ['environment', 'admin'],
+}
+
+interface DataEntryTableProps {
+  section: string
+  profile: any
+}
+
+export default function DataEntryTable({ section, profile }: DataEntryTableProps) {
+  const [selectedMonth, setSelectedMonth] = useState(1)
+  const [data, setData] = useState<Record<string, any>>({})
+  const [saving, setSaving] = useState(false)
+  const [message, setMessage] = useState('')
+
+  const fiscalYear = '2025-26'
+  const canEdit = editableBySection[section]?.includes(profile?.role)
+  const fields = sectionFields[section] || []
+
+  useEffect(() => {
+    loadData()
+  }, [section, selectedMonth])
+
+  async function loadData() {
+    const { data: rows } = await supabase
+      .from(section)
+      .select('*')
+      .eq('fiscal_year', fiscalYear)
+      .eq('month_index', selectedMonth)
+      .single()
+    setData(rows || {})
+  }
+
+  async function handleSave() {
+    setSaving(true)
+    setMessage('')
+    const payload: any = { fiscal_year: fiscalYear, month_index: selectedMonth, updated_by: profile.id }
+    fields.forEach(f => { payload[f.key] = data[f.key] || null })
+
+    const { data: existing } = await supabase
+      .from(section)
+      .select('id')
+      .eq('fiscal_year', fiscalYear)
+      .eq('month_index', selectedMonth)
+      .single()
+
+    let error
+    if (existing) {
+      const res = await supabase.from(section).update(payload).eq('id', existing.id)
+      error = res.error
+    } else {
+      const res = await supabase.from(section).insert(payload)
+      error = res.error
+    }
+
+    if (error) setMessage('Error: ' + error.message)
+    else setMessage('Saved successfully!')
+    setSaving(false)
+  }
+
+  return (
+    <div>
+      {/* Month selector */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {MONTHS.map((m, i) => (
+          <button
+            key={m}
+            onClick={() => setSelectedMonth(i + 1)}
+            className={`month-pill ${selectedMonth === i + 1 ? 'month-pill-active' : 'month-pill-inactive'}`}
+          >
+            {m}
+          </button>
+        ))}
+      </div>
+
+      {/* Data table */}
+      <div className="card">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {section.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} — {MONTHS[selectedMonth - 1]} {fiscalYear}
+          </h2>
+          {!canEdit && (
+            <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">View Only</span>
+          )}
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="table-header">
+                <th className="px-4 py-3 text-left">Parameter</th>
+                <th className="px-4 py-3 text-left">Unit</th>
+                <th className="px-4 py-3 text-left">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {fields.map((f) => (
+                <tr key={f.key} className="border-b border-gray-100 hover:bg-blue-50/30">
+                  <td className="px-4 py-3 font-medium text-gray-700">{f.label}</td>
+                  <td className="px-4 py-3 text-gray-500">{f.unit}</td>
+                  <td className="px-4 py-3">
+                    {canEdit ? (
+                      <input
+                        type="number"
+                        step="any"
+                        className="input-field max-w-[150px]"
+                        value={data[f.key] ?? ''}
+                        onChange={(e) => setData({ ...data, [f.key]: e.target.value ? Number(e.target.value) : null })}
+                      />
+                    ) : (
+                      <span className="text-gray-600">{data[f.key] ?? '-'}</span>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {canEdit && (
+          <div className="mt-4 flex items-center gap-4">
+            <button onClick={handleSave} className="btn-primary" disabled={saving}>
+              {saving ? 'Saving...' : 'Save Data'}
+            </button>
+            {message && (
+              <span className={`text-sm ${message.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
+                {message}
+              </span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
