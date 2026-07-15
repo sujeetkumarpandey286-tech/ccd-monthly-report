@@ -242,8 +242,8 @@ export default function DashboardPage() {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 10 }} />
                 <Tooltip contentStyle={{ fontSize: 12 }} />
-                {selProd.appField && <Bar dataKey="app" name="Target" fill="#eef2ff" stroke="#a5b4fc" strokeWidth={1.5} radius={[4,4,0,0]} />}
-                <Bar dataKey="act" name="Actual" fill="#4f46e5" radius={[4,4,0,0]} />
+                {selProd.appField && <Bar dataKey="app" name="Target" fill="#93c5fd" stroke="#3b82f6" strokeWidth={1.5} radius={[4,4,0,0]} />}
+                <Bar dataKey="act" name="Actual" fill="#1e40af" radius={[4,4,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
