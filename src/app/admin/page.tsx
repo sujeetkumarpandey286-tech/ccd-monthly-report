@@ -82,15 +82,17 @@ export default function AdminPage() {
       })
       const authData = await res.json()
 
-      if (!res.ok || !authData.id) {
+      if (!res.ok || (!authData.id && !authData.user?.id)) {
         setMessage('Error creating auth user: ' + (authData.msg || authData.error_description || JSON.stringify(authData)))
         setCreating(false)
         return
       }
 
+      const userId = authData.user?.id || authData.id
+
       // Create profile
       const { error: profErr } = await supabase.from('profiles').insert({
-        id: authData.id,
+        id: userId,
         employee_id: newUser.email,
         full_name: newUser.full_name,
         role: newUser.role,
