@@ -20,7 +20,9 @@ export default function LoginPage() {
     setLoading(true)
     setError('')
 
-    const email = `${employeeId.toLowerCase()}@ccd.internal`
+    const email = employeeId.includes('@') ? 
+    employeeId.toLowerCase() : 
+    `${employeeId.toLowerCase()}@ccd.internal`
     const { error: authError } = await supabase.auth.signInWithPassword({
       email,
       password,
