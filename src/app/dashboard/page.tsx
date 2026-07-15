@@ -35,24 +35,26 @@ const PRODUCT_OPTIONS = [
   { id: 'anthracene_oil', label: 'Anthracene Oil', appField: null, actField: 'anthracene_oil_act', unit: 'T' },
 ]
 
-// OLD CCD Gas Quality parameters (from product_quality table)
+// OLD CCD Gas Quality parameters (from product_quality + iso_objectives tables)
 const OLD_CCD_GAS_OPTIONS = [
-  { id: 'co_gas_cv', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³', domain: [3800, 4600] },
-  { id: 'co_gas_naphthalene', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³', domain: [0, 2] },
-  { id: 'co_gas_h2s', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³', domain: [0, 4] },
-  { id: 'co_gas_ammonia', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³', domain: [0, 0.5] },
-  { id: 'co_gas_tar_fog', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³', domain: [0, 0.5] },
-  { id: 'bfg_cv', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³', domain: [600, 1100] },
+  { id: 'tar_quality_bi', label: 'Tar Quality BI', field: 'tar_quality_bi', table: 'product_quality', unit: '%', domain: [0, 100] },
+  { id: 'tar_quality_qi', label: 'Tar Quality QI', field: 'tar_quality_qi', table: 'product_quality', unit: '%', domain: [0, 30] },
+  { id: 'tar_sp_gr', label: 'Tar Sp. Gr.', field: 'tar_sp_gr', table: 'product_quality', unit: '', domain: [1.1, 1.3] },
+  { id: 'acid_concentration', label: 'Acid Concentration', field: 'acid_concentration', table: 'product_quality', unit: '%', domain: [70, 100] },
+  { id: 'end_gas_ammonia', label: 'End Gas NH₃', field: 'end_gas_ammonia_g_nm3', table: 'iso_objectives', unit: 'g/Nm³', domain: [0, 0.1] },
+  { id: 'end_gas_naphthalene', label: 'End Gas Naphthalene', field: 'end_gas_naphthalene_g_nm3', table: 'iso_objectives', unit: 'g/Nm³', domain: [0, 0.5] },
+  { id: 'tar_fog_old', label: 'Tar Fog', field: 'tar_fog_g_nm3', table: 'iso_objectives', unit: 'g/Nm³', domain: [0, 0.1] },
 ]
 
-// NEW CCD Gas Quality parameters (from product_quality_new table)
+// NEW CCD Gas Quality parameters (from product_quality_new + lab_analysis_new tables)
 const NEW_CCD_GAS_OPTIONS = [
-  { id: 'co_gas_cv_new', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³', domain: [3800, 4600] },
-  { id: 'co_gas_naphthalene_new', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³', domain: [0, 2] },
-  { id: 'co_gas_h2s_new', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³', domain: [0, 4] },
-  { id: 'co_gas_ammonia_new', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³', domain: [0, 0.5] },
-  { id: 'co_gas_tar_fog_new', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³', domain: [0, 0.5] },
-  { id: 'bfg_cv_new', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³', domain: [600, 1100] },
+  { id: 'tar_quality_bi_new', label: 'Tar Quality BI', field: 'tar_quality_bi', table: 'product_quality_new', unit: '%', domain: [0, 100] },
+  { id: 'tar_quality_qi_new', label: 'Tar Quality QI', field: 'tar_quality_qi', table: 'product_quality_new', unit: '%', domain: [0, 30] },
+  { id: 'tar_sp_gr_new', label: 'Tar Sp. Gr.', field: 'tar_sp_gr', table: 'product_quality_new', unit: '', domain: [1.1, 1.3] },
+  { id: 'acid_conc_new', label: 'Acid Concentration', field: 'acid_concentration', table: 'product_quality_new', unit: '%', domain: [70, 100] },
+  { id: 'tar_fog_new', label: 'Tar Fog', field: 'tar_fog_g_nm3', table: 'lab_analysis_new', unit: 'g/Nm³', domain: [0, 0.1] },
+  { id: 'naphthalene_new', label: 'Naphthalene', field: 'naphthalene_g_nm3', table: 'lab_analysis_new', unit: 'g/Nm³', domain: [0, 0.5] },
+  { id: 'ammonia_new', label: 'Ammonia', field: 'ammonia_g_nm3', table: 'lab_analysis_new', unit: 'g/Nm³', domain: [0, 0.1] },
 ]
 
 export default function DashboardPage() {
@@ -63,10 +65,10 @@ export default function DashboardPage() {
   const [envData, setEnvData] = useState<any>(null)
   const [safetyData, setSafetyData] = useState<any>(null)
   const [selectedProduct, setSelectedProduct] = useState('crude_tar')
-  const [selectedOldGas, setSelectedOldGas] = useState('co_gas_cv')
-  const [selectedNewGas, setSelectedNewGas] = useState('co_gas_cv_new')
-  const [oldCcdData, setOldCcdData] = useState<any[]>([])
-  const [newCcdData, setNewCcdData] = useState<any[]>([])
+  const [selectedOldGas, setSelectedOldGas] = useState('tar_quality_bi')
+  const [selectedNewGas, setSelectedNewGas] = useState('tar_quality_bi_new')
+  const [oldCcdData, setOldCcdData] = useState<Record<string, any[]>>({})
+  const [newCcdData, setNewCcdData] = useState<Record<string, any[]>>({})
   const router = useRouter()
 
   useEffect(() => { loadAll() }, [])
@@ -123,21 +125,15 @@ export default function DashboardPage() {
       .single()
     setSafetyData(safety)
 
-    // Load OLD CCD gas quality data
-    const { data: oldGas } = await supabase
-      .from('product_quality')
-      .select('*')
-      .eq('fiscal_year', FISCAL_YEAR)
-      .order('month_index')
-    setOldCcdData(oldGas || [])
+    // Load OLD CCD gas quality data (from product_quality + iso_objectives)
+    const { data: oldPQ } = await supabase.from('product_quality').select('*').eq('fiscal_year', FISCAL_YEAR).order('month_index')
+    const { data: oldISO } = await supabase.from('iso_objectives').select('*').eq('fiscal_year', FISCAL_YEAR).order('month_index')
+    setOldCcdData({ product_quality: oldPQ || [], iso_objectives: oldISO || [] })
 
-    // Load NEW CCD gas quality data
-    const { data: newGas } = await supabase
-      .from('product_quality_new')
-      .select('*')
-      .eq('fiscal_year', FISCAL_YEAR)
-      .order('month_index')
-    setNewCcdData(newGas || [])
+    // Load NEW CCD gas quality data (from product_quality_new + lab_analysis_new)
+    const { data: newPQ } = await supabase.from('product_quality_new').select('*').eq('fiscal_year', FISCAL_YEAR).order('month_index')
+    const { data: newLab } = await supabase.from('lab_analysis_new').select('*').eq('fiscal_year', FISCAL_YEAR).order('month_index')
+    setNewCcdData({ product_quality_new: newPQ || [], lab_analysis_new: newLab || [] })
   }
 
   if (!profile) return <div className="min-h-screen flex items-center justify-center text-sm text-slate-500">Loading...</div>
@@ -372,20 +368,21 @@ export default function DashboardPage() {
           {/* OLD CCD Gas Quality */}
           <div className="card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-bold">OLD CCD — Gas Quality</h3>
+              <h3 className="text-[13px] font-bold">OLD CCD — Quality & Gas</h3>
               <select className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white" value={selectedOldGas} onChange={e => setSelectedOldGas(e.target.value)}>
                 {OLD_CCD_GAS_OPTIONS.map(p => (<option key={p.id} value={p.id}>{p.label}</option>))}
               </select>
             </div>
             {(() => {
               const selGas = OLD_CCD_GAS_OPTIONS.find(g => g.id === selectedOldGas) || OLD_CCD_GAS_OPTIONS[0]
-              const chartData = oldCcdData.map(r => ({
+              const sourceData = oldCcdData[selGas.table] || []
+              const chartData = sourceData.map((r: any) => ({
                 month: MONTHS[r.month_index - 1],
                 value: r[selGas.field] != null ? Number(r[selGas.field]) : null,
               }))
               return (
                 <>
-                  <div className="text-[10px] text-slate-400 mb-2">Unit: {selGas.unit}</div>
+                  <div className="text-[10px] text-slate-400 mb-2">Unit: {selGas.unit} · Source: {selGas.table}</div>
                   <ResponsiveContainer width="100%" height={160}>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
@@ -403,20 +400,21 @@ export default function DashboardPage() {
           {/* NEW CCD Gas Quality */}
           <div className="card p-5">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-[13px] font-bold">NEW CCD — Gas Quality</h3>
+              <h3 className="text-[13px] font-bold">NEW CCD — Quality & Gas</h3>
               <select className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white" value={selectedNewGas} onChange={e => setSelectedNewGas(e.target.value)}>
                 {NEW_CCD_GAS_OPTIONS.map(p => (<option key={p.id} value={p.id}>{p.label}</option>))}
               </select>
             </div>
             {(() => {
               const selGas = NEW_CCD_GAS_OPTIONS.find(g => g.id === selectedNewGas) || NEW_CCD_GAS_OPTIONS[0]
-              const chartData = newCcdData.map(r => ({
+              const sourceData = newCcdData[selGas.table] || []
+              const chartData = sourceData.map((r: any) => ({
                 month: MONTHS[r.month_index - 1],
                 value: r[selGas.field] != null ? Number(r[selGas.field]) : null,
               }))
               return (
                 <>
-                  <div className="text-[10px] text-slate-400 mb-2">Unit: {selGas.unit}</div>
+                  <div className="text-[10px] text-slate-400 mb-2">Unit: {selGas.unit} · Source: {selGas.table}</div>
                   <ResponsiveContainer width="100%" height={160}>
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
