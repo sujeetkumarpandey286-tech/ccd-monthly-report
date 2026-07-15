@@ -40,7 +40,24 @@ export default function Navbar({ profile, activeTab }: NavbarProps) {
   }
 
   return (
-    <nav className="glass-nav sticky top-0 z-50">
+    <>
+      {/* Animated ticker band */}
+      <div className="sticky top-0 z-[60] bg-gradient-to-r from-blue-900 via-indigo-800 to-blue-900 overflow-hidden">
+        <div className="animate-marquee whitespace-nowrap py-1.5 text-xs font-medium text-white/90 tracking-wide">
+          <span className="mx-8">Developed by: SAIL Digital Transformation Division</span>
+          <span className="mx-8">•</span>
+          <span className="mx-8">Coal Chemicals Department — Monthly Performance Report System</span>
+          <span className="mx-8">•</span>
+          <span className="mx-8">Developed by: SAIL Digital Transformation Division</span>
+          <span className="mx-8">•</span>
+          <span className="mx-8">Coal Chemicals Department — Monthly Performance Report System</span>
+          <span className="mx-8">•</span>
+          <span className="mx-8">Developed by: SAIL Digital Transformation Division</span>
+          <span className="mx-8">•</span>
+          <span className="mx-8">Coal Chemicals Department — Monthly Performance Report System</span>
+        </div>
+      </div>
+    <nav className="glass-nav sticky top-[28px] z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -76,5 +93,16 @@ export default function Navbar({ profile, activeTab }: NavbarProps) {
         </div>
       </div>
     </nav>
+    <style jsx>{`
+      @keyframes marquee {
+        0% { transform: translateX(0%); }
+        100% { transform: translateX(-50%); }
+      }
+      .animate-marquee {
+        display: inline-block;
+        animation: marquee 20s linear infinite;
+      }
+    `}</style>
+    </>
   )
 }
