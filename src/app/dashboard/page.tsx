@@ -35,6 +35,26 @@ const PRODUCT_OPTIONS = [
   { id: 'anthracene_oil', label: 'Anthracene Oil', appField: null, actField: 'anthracene_oil_act', unit: 'T' },
 ]
 
+// OLD CCD Gas Quality parameters (from product_quality table)
+const OLD_CCD_GAS_OPTIONS = [
+  { id: 'co_gas_cv', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³' },
+  { id: 'co_gas_naphthalene', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³' },
+  { id: 'co_gas_h2s', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³' },
+  { id: 'co_gas_ammonia', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³' },
+  { id: 'co_gas_tar_fog', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³' },
+  { id: 'bfg_cv', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³' },
+]
+
+// NEW CCD Gas Quality parameters (from product_quality_new table)
+const NEW_CCD_GAS_OPTIONS = [
+  { id: 'co_gas_cv_new', label: 'CO Gas CV', field: 'co_gas_cv', unit: 'Kcal/Nm³' },
+  { id: 'co_gas_naphthalene_new', label: 'CO Gas Naphthalene', field: 'co_gas_naphthalene', unit: 'g/Nm³' },
+  { id: 'co_gas_h2s_new', label: 'CO Gas H₂S', field: 'co_gas_h2s', unit: 'g/Nm³' },
+  { id: 'co_gas_ammonia_new', label: 'CO Gas NH₃', field: 'co_gas_ammonia', unit: 'g/Nm³' },
+  { id: 'co_gas_tar_fog_new', label: 'CO Gas Tar Fog', field: 'co_gas_tar_fog', unit: 'g/Nm³' },
+  { id: 'bfg_cv_new', label: 'BFG CV', field: 'bfg_cv', unit: 'Kcal/Nm³' },
+]
+
 export default function DashboardPage() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [productionData, setProductionData] = useState<any[]>([])
@@ -43,6 +63,10 @@ export default function DashboardPage() {
   const [envData, setEnvData] = useState<any>(null)
   const [safetyData, setSafetyData] = useState<any>(null)
   const [selectedProduct, setSelectedProduct] = useState('crude_tar')
+  const [selectedOldGas, setSelectedOldGas] = useState('co_gas_cv')
+  const [selectedNewGas, setSelectedNewGas] = useState('co_gas_cv_new')
+  const [oldCcdData, setOldCcdData] = useState<any[]>([])
+  const [newCcdData, setNewCcdData] = useState<any[]>([])
   const router = useRouter()
 
   useEffect(() => { loadAll() }, [])
@@ -98,6 +122,22 @@ export default function DashboardPage() {
       .limit(1)
       .single()
     setSafetyData(safety)
+
+    // Load OLD CCD gas quality data
+    const { data: oldGas } = await supabase
+      .from('product_quality')
+      .select('*')
+      .eq('fiscal_year', FISCAL_YEAR)
+      .order('month_index')
+    setOldCcdData(oldGas || [])
+
+    // Load NEW CCD gas quality data
+    const { data: newGas } = await supabase
+      .from('product_quality_new')
+      .select('*')
+      .eq('fiscal_year', FISCAL_YEAR)
+      .order('month_index')
+    setNewCcdData(newGas || [])
   }
 
   if (!profile) return <div className="min-h-screen flex items-center justify-center text-sm text-slate-500">Loading...</div>
@@ -324,6 +364,71 @@ export default function DashboardPage() {
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+
+        {/* Gas Quality Charts */}
+        <div className="grid grid-cols-2 gap-4 mb-4">
+          {/* OLD CCD Gas Quality */}
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[13px] font-bold">OLD CCD — Gas Quality</h3>
+              <select className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white" value={selectedOldGas} onChange={e => setSelectedOldGas(e.target.value)}>
+                {OLD_CCD_GAS_OPTIONS.map(p => (<option key={p.id} value={p.id}>{p.label}</option>))}
+              </select>
+            </div>
+            {(() => {
+              const selGas = OLD_CCD_GAS_OPTIONS.find(g => g.id === selectedOldGas) || OLD_CCD_GAS_OPTIONS[0]
+              const chartData = oldCcdData.map(r => ({
+                month: MONTHS[r.month_index - 1],
+                value: r[selGas.field] || 0,
+              }))
+              return (
+                <>
+                  <div className="text-[10px] text-slate-400 mb-2">Unit: {selGas.unit}</div>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip contentStyle={{ fontSize: 12 }} />
+                      <Line type="monotone" dataKey="value" stroke="#e11d48" strokeWidth={2.5} dot={{ r: 3 }} name={selGas.label} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </>
+              )
+            })()}
+          </div>
+
+          {/* NEW CCD Gas Quality */}
+          <div className="card p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-[13px] font-bold">NEW CCD — Gas Quality</h3>
+              <select className="text-xs border border-slate-200 rounded-lg px-2 py-1 bg-white" value={selectedNewGas} onChange={e => setSelectedNewGas(e.target.value)}>
+                {NEW_CCD_GAS_OPTIONS.map(p => (<option key={p.id} value={p.id}>{p.label}</option>))}
+              </select>
+            </div>
+            {(() => {
+              const selGas = NEW_CCD_GAS_OPTIONS.find(g => g.id === selectedNewGas) || NEW_CCD_GAS_OPTIONS[0]
+              const chartData = newCcdData.map(r => ({
+                month: MONTHS[r.month_index - 1],
+                value: r[selGas.field] || 0,
+              }))
+              return (
+                <>
+                  <div className="text-[10px] text-slate-400 mb-2">Unit: {selGas.unit}</div>
+                  <ResponsiveContainer width="100%" height={160}>
+                    <LineChart data={chartData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                      <XAxis dataKey="month" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
+                      <Tooltip contentStyle={{ fontSize: 12 }} />
+                      <Line type="monotone" dataKey="value" stroke="#0d9488" strokeWidth={2.5} dot={{ r: 3 }} name={selGas.label} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </>
+              )
+            })()}
           </div>
         </div>
 
