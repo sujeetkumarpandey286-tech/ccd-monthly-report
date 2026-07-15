@@ -1,10 +1,24 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { createClient } from '@/lib/supabase'
-import { Profile, MONTHS, FISCAL_YEAR } from '@/lib/types'
+import { createClient } from '@supabase/supabase-js'
 import Navbar from '@/components/Navbar'
 import { useRouter } from 'next/navigation'
+
+const supabase = createClient(
+  'https://hwafhyotnviacdzsdzsv.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imh3YWZoeW90bnZpYWNkenNkenN2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQwODg5NzIsImV4cCI6MjA5OTY2NDk3Mn0.1ibzOXApTZA_P9T6kiq7ayf85KmxNd91XeP6f7SdyGc'
+)
+
+const MONTHS = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
+const FISCAL_YEAR = '2025-26'
+
+type Profile = {
+  id: string
+  full_name: string
+  role: string
+  is_active: boolean
+}
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   LineChart, Line, PieChart, Pie, Cell, Legend
@@ -34,7 +48,6 @@ export default function DashboardPage() {
   useEffect(() => { loadAll() }, [])
 
   async function loadAll() {
-    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) { router.push('/'); return }
 
