@@ -45,8 +45,7 @@ export default function AdminPage() {
     setMessage('')
 
     try {
-      // Create auth user via signup
-      const email = `${newUser.employeeId.toLowerCase()}@ccd.internal`
+      const email = newUser.employeeId.includes('@') ? newUser.employeeId.toLowerCase() : `${newUser.employeeId.toLowerCase()}@ccd.internal`
       const signupRes = await fetch('https://hwafhyotnviacdzsdzsv.supabase.co/auth/v1/signup', {
         method: 'POST',
         headers: {
@@ -63,7 +62,6 @@ export default function AdminPage() {
         return
       }
 
-      // Create profile
       const { error: profileError } = await supabase.from('profiles').insert({
         id: signupData.user.id,
         employee_id: newUser.employeeId.toUpperCase(),
@@ -74,7 +72,7 @@ export default function AdminPage() {
       if (profileError) {
         setMessage('Error creating profile: ' + profileError.message)
       } else {
-        setMessage(`User ${newUser.employeeId.toUpperCase()} created successfully!`)
+        setMessage('User ' + newUser.employeeId.toUpperCase() + ' created successfully!')
         setNewUser({ employeeId: '', fullName: '', role: 'viewer', password: '' })
         setShowAddUser(false)
         loadData()
@@ -95,20 +93,24 @@ export default function AdminPage() {
     if (!error) loadData()
   }
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-gray-500">Loading...</div>
-    </div>
-  )
-
-  if (profile?.role !== 'admin') return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="card text-center">
-        <p className="text-red-600 font-medium">Access Denied</p>
-        <p className="text-gray-500 mt-2">Admin access required</p>
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-gray-500">Loading...</div>
       </div>
-    </div>
-  )
+    )
+  }
+
+  if (profile?.role !== 'admin') {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="card text-center">
+          <p className="text-red-600 font-medium">Access Denied</p>
+          <p className="text-gray-500 mt-2">Admin access required</p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen">
@@ -116,7 +118,6 @@ export default function AdminPage() {
       <main className="p-6 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold text-gray-800 mb-6">Admin Panel</h1>
 
-        {/* Add User Section */}
         <div className="card mb-6">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold text-gray-800">User Management</h2>
@@ -130,65 +131,32 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Employee ID</label>
-                  <input
-                    type="text"
-                    className="input-field text-sm"
-                    placeholder="e.g. CCD-1042"
-                    value={newUser.employeeId}
-                    onChange={(e) => setNewUser({ ...newUser, employeeId: e.target.value })}
-                    required
-                  />
+                  <input type="text" className="input-field text-sm" placeholder="e.g. CCD-1042" value={newUser.employeeId} onChange={(e) => setNewUser({ ...newUser, employeeId: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    className="input-field text-sm"
-                    placeholder="e.g. R. Kumar"
-                    value={newUser.fullName}
-                    onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })}
-                    required
-                  />
+                  <input type="text" className="input-field text-sm" placeholder="e.g. R. Kumar" value={newUser.fullName} onChange={(e) => setNewUser({ ...newUser, fullName: e.target.value })} required />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Role</label>
-                  <select
-                    className="input-field text-sm"
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                  >
-                    {ROLES.map(r => (
-                      <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-                    ))}
+                  <select className="input-field text-sm" value={newUser.role} onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}>
+                    {ROLES.map(r => (<option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-gray-600 mb-1">Password</label>
-                  <input
-                    type="text"
-                    className="input-field text-sm"
-                    placeholder="Min 6 characters"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    required
-                    minLength={6}
-                  />
+                  <input type="text" className="input-field text-sm" placeholder="Min 6 characters" value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} required minLength={6} />
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <button type="submit" className="btn-primary text-sm" disabled={creating}>
                   {creating ? 'Creating...' : 'Create User'}
                 </button>
-                {message && (
-                  <span className={`text-sm ${message.includes('Error') ? 'text-red-600' : 'text-green-600'}`}>
-                    {message}
-                  </span>
-                )}
+                {message && (<span className={'text-sm ' + (message.includes('Error') ? 'text-red-600' : 'text-green-600')}>{message}</span>)}
               </div>
             </form>
           )}
 
-          {/* Users Table */}
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
@@ -206,26 +174,17 @@ export default function AdminPage() {
                     <td className="px-4 py-3 font-medium">{u.employee_id}</td>
                     <td className="px-4 py-3">{u.full_name}</td>
                     <td className="px-4 py-3">
-                      <select
-                        className="px-2 py-1 rounded-lg text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700"
-                        value={u.role}
-                        onChange={(e) => handleChangeRole(u.id, e.target.value)}
-                      >
-                        {ROLES.map(r => (
-                          <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>
-                        ))}
+                      <select className="px-2 py-1 rounded-lg text-xs font-medium bg-blue-50 border border-blue-200 text-blue-700" value={u.role} onChange={(e) => handleChangeRole(u.id, e.target.value)}>
+                        {ROLES.map(r => (<option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>))}
                       </select>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                      <span className={'px-2 py-1 rounded-full text-xs font-medium ' + (u.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700')}>
                         {u.is_active ? 'Active' : 'Inactive'}
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => handleToggleActive(u.id, u.is_active)}
-                        className={`text-xs px-2 py-1 rounded-lg ${u.is_active ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100'}`}
-                      >
+                      <button onClick={() => handleToggleActive(u.id, u.is_active)} className={'text-xs px-2 py-1 rounded-lg ' + (u.is_active ? 'bg-red-50 text-red-600 hover:bg-red-100' : 'bg-green-50 text-green-600 hover:bg-green-100')}>
                         {u.is_active ? 'Deactivate' : 'Activate'}
                       </button>
                     </td>
@@ -236,7 +195,6 @@ export default function AdminPage() {
           </div>
         </div>
 
-        {/* Audit Log */}
         <div className="card">
           <h2 className="text-lg font-semibold text-gray-800 mb-4">Audit Trail</h2>
           <div className="overflow-x-auto">
@@ -247,7 +205,7 @@ export default function AdminPage() {
                   <th className="px-4 py-3 text-left">Action</th>
                   <th className="px-4 py-3 text-left">Table</th>
                   <th className="px-4 py-3 text-left">Field</th>
-                  <th className="px-4 py-3 text-left">Old → New</th>
+                  <th className="px-4 py-3 text-left">Old / New</th>
                   <th className="px-4 py-3 text-left">Reason</th>
                 </tr>
               </thead>
@@ -258,9 +216,18 @@ export default function AdminPage() {
                     <td className="px-4 py-3 font-medium">{log.action}</td>
                     <td className="px-4 py-3">{log.table_name}</td>
                     <td className="px-4 py-3">{log.field_name || '-'}</td>
-                    <td className="px-4 py-3">{log.old_value || '-'} → {log.new_value || '-'}</td>
+                    <td className="px-4 py-3">{(log.old_value || '-') + ' / ' + (log.new_value || '-')}</td>
                     <td className="px-4 py-3 text-gray-500">{log.reason || '-'}</td>
                   </tr>
                 ))}
                 {auditLog.length === 0 && (
-                  <tr><td colSpan={6} className="px-4 py-8
+                  <tr><td colSpan={6} className="px-4 py-8 text-center text-gray-400">No audit entries yet</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  )
+}
