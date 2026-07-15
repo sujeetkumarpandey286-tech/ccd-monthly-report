@@ -23,6 +23,7 @@ export default function Navbar({ profile, activeTab }: NavbarProps) {
   const tabs = [
     { id: 'entry', label: 'Data Entry', href: '/entry' },
     { id: 'dashboard', label: 'Dashboard', href: '/dashboard' },
+    { id: 'view', label: 'View Data', href: '/view' },
     ...(profile?.role === 'admin' ? [
       { id: 'import', label: 'Import/Export', href: '/import' },
       { id: 'admin', label: 'Admin', href: '/admin' },
